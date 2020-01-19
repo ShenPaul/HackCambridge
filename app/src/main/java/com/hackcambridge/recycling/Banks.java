@@ -82,8 +82,9 @@ public class Banks {
     public static void main(String[] args) {
         String csvFile = "cam_data.csv";
         Banks banks = new Banks(csvFile);
-        Location userLocation = new Location("Pembroke College Cambridge");
-        Bank closestBank = banks.queryMaterial("glass", userLocation);
+        Location userLocation = new Location("Botanic gardens Cambridge");
+        System.out.println(userLocation);
+        Bank closestBank = banks.queryMaterial("shoes", userLocation);
         if (closestBank != null) {
             System.out.println(closestBank.getName());
         } else {
@@ -117,5 +118,9 @@ class Bank {
 
     public String getName() {
         return name;
+    }
+
+    public Set<String> getRecycledMaterials() {
+        return recyclables.keySet();
     }
 }
