@@ -1,4 +1,4 @@
-package com.shenpaul.mhacks11.workhardplayhard;
+package com.hackcambridge.recycling;
 
 import android.content.Intent;
 import android.os.Bundle;

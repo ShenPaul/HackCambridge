@@ -1,3 +1,7 @@
+package com.hackcambridge.recycling;
+
+import android.location.Location;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
