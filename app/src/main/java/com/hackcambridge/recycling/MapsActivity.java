@@ -3,12 +3,16 @@ package com.hackcambridge.recycling;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MotionEvent;
+import android.widget.SearchView;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -54,6 +58,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
     }
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,35 +85,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
 
-        // Initialize the AutocompleteSupportFragment.
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.autoSearch);
-
-        // Specify the types of place data to return.
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
-
-
-        // Set up a PlaceSelectionListener to handle the response.
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                String name = place.getName();
-                CharSequence address = place.getAddress();
-
-                if (place.getLatLng() != null) {
-                    location = place.getLatLng();
-                }
-
-                mMap.addMarker(new MarkerOptions().position(location).title(name));
-                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
-            }
-
-            @Override
-            public void onError(Status status) {
-                // TODO: Handle the error.
-                Log.i(TAG, "An error occurred: " + status);
-            }
-        });
+//        // Initialize the AutocompleteSupportFragment.
+//        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+//                getSupportFragmentManager().findFragmentById(R.id.autoSearch);
+//
+//
+//        // Specify the types of place data to return.
+//        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+//
+//
+//        // Set up a PlaceSelectionListener to handle the response.
+//        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+//            @Override
+//            public void onPlaceSelected(Place place) {
+//                String csvFile = "cam_data.csv";
+//                Banks banks = new Banks(csvFile);
+//                Location userLocation = new Location("Pembroke College Cambridge");
+//                Bank closestBank = banks.queryMaterial(place.getId(), userLocation);
+//                Location bLocation = closestBank.getLocation();
+////                (bLocation.getLatitude(), bLocation.getLongitude();)
+//
+//                String name = place.getName();
+//                CharSequence address = place.getAddress();
+//
+//                if (place.getLatLng() != null) {
+//                    location = place.getLatLng();
+//                }
+//
+//                mMap.addMarker(new MarkerOptions().position(location).title(name));
+//                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+//            }
+//
+//            @Override
+//            public void onError(Status status) {
+//                // TODO: Handle the error.
+//                Log.i(TAG, "An error occurred: " + status);
+//            }
+//        });
 
         mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
