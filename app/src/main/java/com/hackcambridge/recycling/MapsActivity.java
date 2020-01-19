@@ -39,6 +39,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GestureDetectorCompat mDetector;
     private GoogleMap mMap;
     LatLng location = new LatLng(52.202,0.119);
+    private Banks banks = new Banks("cam_data.csv");
+    private Location userLocation = new Location("Corn Exchange Cambridge");
 
     /**
      * Manipulates the map once available.
@@ -67,6 +69,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
 
         return true;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Bank closestBank = banks.queryMaterial(query, userLocation);
+            //TODO: put pin on map using...
+            closestBank.getLocation().getLatitude();
+            closestBank.getLocation().getLongitude();
+        }
     }
 
     @Override
