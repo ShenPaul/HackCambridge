@@ -1,9 +1,14 @@
 package com.hackcambridge.recycling;
 
+import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MotionEvent;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -15,19 +20,29 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Arrays;
+
+import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private static final String TAG = "MyActivity";
-
+    private GestureDetectorCompat mDetector;
     private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Initialize the SDK
+        Places.initialize(getApplicationContext(), "AIzaSyCEjKLoDgwL8ebv-6xnhZGjxJAyBbjs498");
+
+// Create a new Places client instance
+        PlacesClient placesClient = Places.createClient(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -38,16 +53,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Initialize the AutocompleteSupportFragment.
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+                getSupportFragmentManager().findFragmentById(R.id.autoSearch);
 
-// Specify the types of place data to return.
+        // Specify the types of place data to return.
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
 
-// Set up a PlaceSelectionListener to handle the response.
+
+        // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                // TODO: Get info about the selected place.
+                String name = place.getName();
+                CharSequence address = place.getAddress();
+                LatLng location = place.getLatLng();
+                mMap.addMarker(new MarkerOptions().position(location).title(name));
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
             }
 
@@ -57,6 +76,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
+
+        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
+
+        BottomNavigationView bottomNavigation = findViewById(R.id.botNav);
+        Menu menu = bottomNavigation.getMenu();
+//        menu.add(Menu.NONE, menu1, 1, "Map").setIcon(R.drawable.ic_action_one);
+//        menu.add(Menu.NONE, menu2, 2, "Map").setIcon(R.drawable.ic_action_one);
+//        menu.add(Menu.NONE, menu3, 3, "Map").setIcon(R.drawable.ic_action_one);
+
     }
 
 
@@ -77,5 +105,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private static final String DEBUG_TAG = "Gestures";
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d(DEBUG_TAG,"onDown: " + event.toString());
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent event1, MotionEvent event2,
+                               float velocityX, float velocityY) {
+            float sensitivity = 50;
+            Log.d(DEBUG_TAG, "onFling: " + event1.toString() + event2.toString());
+            if((event1.getX() - event2.getX()) > sensitivity) {
+                Intent intent = new Intent(MapsActivity.this, com.hackcambridge.recycling.MainActivity.class);
+                intent.putExtra(EXTRA_MESSAGE, "message");
+                startActivity(intent);
+                return true;
+            }else if((event2.getX() - event1.getX()) > sensitivity){
+                return true;
+            }
+            return true;
+        }
     }
 }
