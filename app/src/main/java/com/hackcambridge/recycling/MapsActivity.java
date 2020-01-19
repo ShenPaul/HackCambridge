@@ -74,12 +74,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             Bank closestBank = banks.queryMaterial(query, userLocation);
-            mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(closestBank.getLocation().getLatitude(), closestBank.getLocation().getLongitude()))
-                    .title(closestBank.getName()));
+            if (closestBank != null) {
+                mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(closestBank.getLocation().getLatitude(), closestBank.getLocation().getLongitude()))
+                        .title(closestBank.getName()));
+            } else {
+                //TODO: display popup error
+            }
         }
     }
 
@@ -97,6 +106,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        handleIntent(getIntent());
 
 
 //        // Initialize the AutocompleteSupportFragment.
