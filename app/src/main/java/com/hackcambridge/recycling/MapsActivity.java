@@ -77,9 +77,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             Bank closestBank = banks.queryMaterial(query, userLocation);
-            //TODO: put pin on map using...
-            closestBank.getLocation().getLatitude();
-            closestBank.getLocation().getLongitude();
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(closestBank.getLocation().getLatitude(), closestBank.getLocation().getLongitude()))
+                    .title(closestBank.getName()));
         }
     }
 
